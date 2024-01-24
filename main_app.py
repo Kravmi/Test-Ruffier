@@ -25,18 +25,23 @@ class MainScr(Screen):
         v = BoxLayout(orientation = 'vertical')
         h = BoxLayout()
         instruction = Label(text = instructions.txt_instruction)
-        name = TextInput(text = 'Введите имя')
-        age = TextInput(text = 'Введите возраст')
+        self.text_name = TextInput(text = 'Введите имя')
+        self.age = TextInput(text = 'Введите возраст')
         start = Button(text = 'начать')
         start.on_press = self.next
-        h.add_widget(name)
-        h.add_widget(age)
+        h.add_widget(self.text_name)
+        h.add_widget(self.age)
         v.add_widget(instruction)
         v.add_widget(h)
         v.add_widget(start)
         self.add_widget(v)
 
     def next(self):
+        global text_name, age
+        text_name = self.text_name.text
+        age = self.age.text
+        print(text_name)
+        print(age)
         self.manager.current = 'scr1'
 
 
@@ -45,15 +50,18 @@ class FirstScr(Screen):
         super().__init__(**kwargs)
         v = BoxLayout(orientation = 'vertical')
         txt = Label(text = instructions.txt_test1)
-        text_input = TextInput(text = 'Введите свой пульс')
+        self.text_input = TextInput(text = 'Введите свой пульс')
         btn = Button(text = 'Продолжить')
         btn.on_press = self.next
         v.add_widget(txt)
-        v.add_widget(text_input)
+        v.add_widget(self.text_input)
         v.add_widget(btn)
         self.add_widget(v)
 
     def next(self):
+        global puls1
+        puls1 = self.text_input.text
+        print(puls1)
         self.manager.current = 'scr2'
 
 
@@ -80,18 +88,22 @@ class ThirdScr(Screen):
         v = BoxLayout(orientation = 'vertical')
         h = BoxLayout()
         txt = Label(text = instructions.txt_test3)
-        text_input1 = TextInput(text = 'Введите свой пульс после упражнений')
-        text_input2 = TextInput(text = 'Введите свой пульс после отдыха')
+        self.text_input1 = TextInput(text = 'Введите свой пульс после упражнений')
+        self.text_input2 = TextInput(text = 'Введите свой пульс после отдыха')
         btn = Button(text = 'Продолжить')
         btn.on_press = self.next
-        h.add_widget(text_input1)
-        h.add_widget(text_input2)
+        h.add_widget(self.text_input1)
+        h.add_widget(self.text_input2)
         v.add_widget(txt)
         v.add_widget(h)
         v.add_widget(btn)
         self.add_widget(v)
 
     def next(self):
+        global puls2, puls3
+        puls2 = self.text_input1.text
+        puls3 = self.text_input2.text
+        print(puls2, puls3)
         self.manager.current = 'result'
 
 
