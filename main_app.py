@@ -6,6 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
 import instructions
+import ruffier as ruf
 
 
 class MyApp(App):
@@ -60,7 +61,7 @@ class FirstScr(Screen):
 
     def next(self):
         global puls1
-        puls1 = self.text_input.text
+        puls1 = int(self.text_input.text)
         print(puls1)
         self.manager.current = 'scr2'
 
@@ -70,11 +71,9 @@ class SecondScr(Screen):
         super().__init__(**kwargs)
         v = BoxLayout(orientation = 'vertical')
         txt = Label(text = instructions.txt_test2)
-        text_input1 = TextInput(text = 'Введите свой пульс после упражнений')
         btn = Button(text = 'Продолжить')
         btn.on_press = self.next
         v.add_widget(txt)
-        v.add_widget(text_input1)
         v.add_widget(btn)
         self.add_widget(v)
 
@@ -101,8 +100,8 @@ class ThirdScr(Screen):
 
     def next(self):
         global puls2, puls3
-        puls2 = self.text_input1.text
-        puls3 = self.text_input2.text
+        puls2 = int(self.text_input1.text)
+        puls3 = int(self.text_input2.text)
         print(puls2, puls3)
         self.manager.current = 'result'
 
@@ -110,7 +109,14 @@ class ThirdScr(Screen):
 class ResultScr(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        pass
+        self.result = Label(text = "")
+
+        self.on_enter = self.before
+        self.add_widget(self.result)
+
+    def before(self):
+        self.result.text = text_name + ',' + '\n' + ruf.txt_index + str(ruf.ruffier_index(puls1, puls2, puls3))
+
 
 
 app = MyApp()
