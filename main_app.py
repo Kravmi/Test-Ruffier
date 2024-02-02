@@ -6,8 +6,15 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
 import instructions
+from seconds import Seconds
 import ruffier as ruf
 
+
+def check_int(str_num):
+    try:
+        return int(str_num)
+    except:
+        return False
 
 class MyApp(App):
     def build(self):
@@ -40,30 +47,52 @@ class MainScr(Screen):
     def next(self):
         global text_name, age
         text_name = self.text_name.text
-        age = self.age.text
-        print(text_name)
-        print(age)
-        self.manager.current = 'scr1'
+        age = check_int(self.age.text)
+        if age == False or age < 7:
+            age = 0
+            self.age.text = str(age)
+        else:
+            self.manager.current = 'scr1'
 
 
 class FirstScr(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.level = False
+        self.lbl_sec = Seconds(15)
+        self.lbl_sec.bind(done = self.sec_finished)
         v = BoxLayout(orientation = 'vertical')
         txt = Label(text = instructions.txt_test1)
         self.text_input = TextInput(text = 'Введите свой пульс')
-        btn = Button(text = 'Продолжить')
-        btn.on_press = self.next
+        self.text_input.set_disabled(True)
+        self.btn = Button(text = 'Начать')
+        self.btn.on_press = self.next
         v.add_widget(txt)
+        v.add_widget(self.lbl_sec)
         v.add_widget(self.text_input)
-        v.add_widget(btn)
+        v.add_widget(self.btn)
         self.add_widget(v)
+        
+    def sec_finished(self, *args):
+        self.level = True
+        self.text_input.set_disabled(False)
+        self.btn.set_disabled(False)
+        self.btn.text = 'Продолжить'
+        
 
     def next(self):
         global puls1
-        puls1 = int(self.text_input.text)
-        print(puls1)
-        self.manager.current = 'scr2'
+        if self.level == False:
+            self.text_input.set_disabled(True)
+            self.btn.set_disabled(True)
+            self.lbl_sec.start()
+        else:
+            puls1 = check_int(self.text_input.text)
+            if puls1 == False or puls1 <= 0:
+                puls1 = 0
+                self.text_input.text = str(puls1)
+            else:
+                self.manager.current = 'scr2'
 
 
 class SecondScr(Screen):
@@ -71,7 +100,7 @@ class SecondScr(Screen):
         super().__init__(**kwargs)
         v = BoxLayout(orientation = 'vertical')
         txt = Label(text = instructions.txt_test2)
-        btn = Button(text = 'Продолжить')
+        btn = Button(text = 'Начать')
         btn.on_press = self.next
         v.add_widget(txt)
         v.add_widget(btn)
@@ -84,26 +113,59 @@ class SecondScr(Screen):
 class ThirdScr(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.bool = False
+        self.level = 0 
+        self.lbl_sec = Seconds(15)
+        self.lbl_sec.bind(done = self.sec_finished)
         v = BoxLayout(orientation = 'vertical')
         h = BoxLayout()
-        txt = Label(text = instructions.txt_test3)
+        self.txt = Label(text = instructions.txt_test3)
         self.text_input1 = TextInput(text = 'Введите свой пульс после упражнений')
+        self.text_input1.set_disabled(True)
         self.text_input2 = TextInput(text = 'Введите свой пульс после отдыха')
-        btn = Button(text = 'Продолжить')
-        btn.on_press = self.next
+        self.text_input2.set_disabled(True)
+        self.btn = Button(text = 'Продолжить')
+        self.btn.on_press = self.next
         h.add_widget(self.text_input1)
         h.add_widget(self.text_input2)
-        v.add_widget(txt)
+        v.add_widget(self.txt)
+        v.add_widget(self.lbl_sec)
         v.add_widget(h)
-        v.add_widget(btn)
+        v.add_widget(self.btn)
         self.add_widget(v)
+
+    def sec_finished(self, *args):
+        if self.lbl_sec.done:
+            if self.level == 0:
+                self.level = 1
+                self.txt.text = 'Отдыхайте'
+                self.lbl_sec.restart(30)
+                self.text_input1.set_disabled(False)
+            elif self.level == 1:
+                self.level = 2
+                self.txt.text = 'Считайте пульс'
+                self.lbl_sec.restart(15)
+            elif self.level == 2:
+                self.btn.text = 'Завершить'
+                self.btn.set_disabled(False)
+                self.text_input2.set_disabled(False)
+                self.bool = True
 
     def next(self):
         global puls2, puls3
-        puls2 = int(self.text_input1.text)
-        puls3 = int(self.text_input2.text)
-        print(puls2, puls3)
-        self.manager.current = 'result'
+        if self.bool == False:
+            self.btn.set_disabled(True)
+            self.lbl_sec.start()
+        else:
+            puls2 = check_int(self.text_input1.text)
+            puls3 = check_int(self.text_input2.text)
+            if puls2 == False or puls2 <= 0 or puls3 == False or puls3 <=0:
+                puls2 = 0
+                puls3 = 0
+                self.text_input1.text = str(puls2)
+                self.text_input2.text = str(puls3)
+            else:
+                self.manager.current = 'result'
 
 
 class ResultScr(Screen):
@@ -115,7 +177,8 @@ class ResultScr(Screen):
         self.add_widget(self.result)
 
     def before(self):
-        self.result.text = text_name + ',' + '\n' + ruf.txt_index + str(ruf.ruffier_index(puls1, puls2, puls3))
+        self.result.text = text_name + '\n' + ruf.test(puls1, puls2, puls3, age)
+
 
 
 

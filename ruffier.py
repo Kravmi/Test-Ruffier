@@ -77,5 +77,9 @@ def test(P1, P2, P3, age):
     ''' эту функцию можно использовать снаружи модуля для подсчетов индекса Руфье.
     Возвращает готовые тексты, которые остается нарисовать в нужном месте
     Использует для текстов константы, заданные в начале этого модуля. '''
-    pass
+    r_rufier = ruffier_index(P1, P2, P3)
+    result = txt_res[ruffier_result(r_rufier, neud_level(age))]
+    final_result = txt_index + str(r_rufier) + '\n' + txt_workheart + result
+    return final_result
+
 
