@@ -8,6 +8,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 import instructions
 from seconds import Seconds
 import ruffier as ruf
+from runner import Runner
+from sits import Sits
 
 
 def check_int(str_num):
@@ -98,16 +100,36 @@ class FirstScr(Screen):
 class SecondScr(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.bool = False
+        self.run = Runner(total = 30, step_time = 1)
+        self.run.bind(finished = self.run_finished)
+        self.sit = Sits(30)
         v = BoxLayout(orientation = 'vertical')
+        v2 = BoxLayout(orientation = 'vertical')
+        h = BoxLayout()
         txt = Label(text = instructions.txt_test2)
-        btn = Button(text = 'Начать')
-        btn.on_press = self.next
+        self.btn = Button(text = 'Начать')
+        self.btn.on_press = self.next
+        v2.add_widget(self.sit)
+        v2.add_widget(self.run)
+        h.add_widget(v2)
         v.add_widget(txt)
-        v.add_widget(btn)
+        v.add_widget(h)
+        v.add_widget(self.btn)
         self.add_widget(v)
 
+    def run_finished(self, *args):
+        self.btn.set_disabled(False)
+        self.btn.text = 'Продолжить'
+        self.bool = True
+
     def next(self):
-        self.manager.current = 'scr3'
+        if self.bool == False:
+            self.btn.set_disabled(True)
+            self.run.start()
+            self.run.bind(value = self.sit.next)
+        else:
+            self.manager.current = 'scr3'
 
 
 class ThirdScr(Screen):
